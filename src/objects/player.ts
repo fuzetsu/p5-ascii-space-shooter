@@ -40,7 +40,7 @@ export class Player {
       this.pos,
     );
     const distance = mousePos.dist(offsetPos);
-    if (distance > 10) {
+    if (distance > 5) {
       const delta = createVector(mouseX, mouseY).sub(offsetPos);
       if (distance < this.height * 2) {
         delta.mult(0.05);
@@ -48,7 +48,8 @@ export class Player {
         delta.normalize();
         delta.mult(shooting ? 4 : 7);
       }
-      this.pos.add(delta);
+      this.pos.x = constrain(this.pos.x + delta.x, 10, WIDTH - this.width);
+      this.pos.y = constrain(this.pos.y + delta.y, 10, HEIGHT - this.height);
     }
   }
 }
