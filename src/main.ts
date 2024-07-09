@@ -28,8 +28,8 @@ window.draw = () => {
     textAlign("center");
     textSize(50);
     fill(255);
-    text("GAME OVER\nPress Space", WIDTH / 2, HEIGHT / 2);
-    if (keyIsDown(32)) {
+    text(score + " points\nGAME OVER\nPress Space", WIDTH / 2, HEIGHT / 2);
+    if (keyIsDown(32) || mouseIsPressed) {
       player = null;
       gameOver = -1;
     }
