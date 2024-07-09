@@ -14,7 +14,6 @@ let spawnRate = 120;
 
 // @ts-ignore
 window.setup = () => {
-  console.log(p5);
   createCanvas(WIDTH, HEIGHT);
 };
 
@@ -87,12 +86,16 @@ window.draw = () => {
       // ellipse(charOrigin.x, charOrigin.y, 5, 5);
       if (charOrigin.dist(bullet.pos) < distance) {
         bullet.visible = false;
-        explosions.push(new Explosion(charOrigin.x, charOrigin.y));
         if (character === player) {
           if (gameOver === -1) gameOver = 50;
-        } else {
-          score += 1;
-          enemies = enemies.filter((x) => x !== character);
+          explosions.push(new Explosion(charOrigin.x, charOrigin.y));
+        } else if (character instanceof Enemy) {
+          character.takeDamage(2.5);
+          if (!character.alive) {
+            explosions.push(new Explosion(charOrigin.x, charOrigin.y));
+            score += 1;
+            enemies = enemies.filter((x) => x !== character);
+          }
         }
       }
     }
