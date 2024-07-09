@@ -6,7 +6,7 @@ export class Player {
   width: number;
   height: number;
   pos: p5.Vector;
-  speed: number = 4;
+  speed: number = 7;
   lastShot = 0;
 
   constructor() {
@@ -27,13 +27,16 @@ export class Player {
   }
 
   move(bullets: Bullet[]) {
+    const shooting = keyIsDown(32);
+    const speedPenalty = shooting ? 3 : 0;
+
     if (keyIsDown(LEFT_ARROW) && this.pos.x > 5 - this.width / 2) {
-      this.pos.sub(this.speed);
+      this.pos.sub(this.speed - speedPenalty);
     }
     if (keyIsDown(RIGHT_ARROW) && this.pos.x < WIDTH - 5 - this.width / 2) {
-      this.pos.add(this.speed);
+      this.pos.add(this.speed - speedPenalty);
     }
-    if (keyIsDown(32) && Date.now() - this.lastShot > 200) {
+    if (shooting && Date.now() - this.lastShot > 200) {
       this.lastShot = Date.now();
       bullets.push(
         new Bullet(this.pos.x + -4 + this.width / 2, this.pos.y - 12),
