@@ -1,4 +1,4 @@
-import { HEIGHT, WIDTH } from '../constants'
+import { getHeight, getWidth } from '../util'
 import { Bullet } from './bullet'
 
 const MAX_HEALTH = 5
@@ -25,7 +25,7 @@ export class Enemy {
   \\/`
     this.width = textWidth(this.char)
     this.height = this.char.split('\n').length * textLeading()
-    this.pos = new p5.Vector(random(5, WIDTH - this.width), 0)
+    this.pos = new p5.Vector(random(5, getWidth() - this.width), 0)
   }
 
   draw() {
@@ -70,7 +70,7 @@ export class Enemy {
 
   move(bullets: Bullet[]) {
     this.pos.add(0, this.speed)
-    this.visible = this.pos.y < HEIGHT + 20
+    this.visible = this.pos.y < getHeight() + 20
     if (Math.floor(random(100)) === 25) {
       this.lastShot = Date.now()
       bullets.push(

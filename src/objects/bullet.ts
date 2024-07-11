@@ -1,4 +1,4 @@
-import { HEIGHT } from '../constants'
+import { getHeight } from '../util'
 
 export class Bullet {
   pos: p5.Vector
@@ -19,6 +19,6 @@ export class Bullet {
 
   move() {
     this.pos.sub(0, this.speed)
-    this.visible = this.pos.y > 0 && this.pos.y < HEIGHT + 20
+    this.visible = this.pos.y > 0 && this.pos.y < getHeight() + 20
   }
 }

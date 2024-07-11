@@ -1,4 +1,4 @@
-import { WIDTH, HEIGHT } from '../constants'
+import { getHeight, getWidth } from '../util'
 import { Bullet } from './bullet'
 
 export class Player {
@@ -17,7 +17,7 @@ export class Player {
     this.width = textWidth(this.char)
     this.height = this.char.split('\n').length * textLeading()
 
-    this.pos = new p5.Vector(WIDTH / 2 - this.width / 2, HEIGHT - 80)
+    this.pos = new p5.Vector(getWidth() / 2 - this.width / 2, getHeight() - 80)
   }
 
   draw() {
@@ -48,8 +48,12 @@ export class Player {
         delta.normalize()
         delta.mult(shooting ? 4 : 7)
       }
-      this.pos.x = constrain(this.pos.x + delta.x, 10, WIDTH - this.width)
-      this.pos.y = constrain(this.pos.y + delta.y, 10, HEIGHT - this.height)
+      this.pos.x = constrain(this.pos.x + delta.x, 10, getWidth() - this.width)
+      this.pos.y = constrain(
+        this.pos.y + delta.y,
+        10,
+        getHeight() - this.height,
+      )
     }
   }
 }
