@@ -7,8 +7,9 @@ export class Player {
   height: number
   pos: p5.Vector
   lastShot = 0
+  startScreen = false
 
-  constructor() {
+  constructor(startScreen = false) {
     this.char = `   /\\
   (  )
   (  )
@@ -18,19 +19,24 @@ export class Player {
     this.height = this.char.split('\n').length * textLeading()
 
     this.pos = new p5.Vector(getWidth() / 2 - this.width / 2, getHeight() - 80)
+    this.startScreen = startScreen
   }
 
   draw() {
+    push()
+    stroke(255)
     fill(255)
+    textAlign('left')
     text(this.char, this.pos.x, this.pos.y)
+    pop()
   }
 
   move(bullets: Bullet[]) {
-    const shooting = keyIsDown(32) || mouseIsPressed
+    const shooting = mouseIsPressed || keyIsDown(32)
     if (shooting && Date.now() - this.lastShot > 200) {
       this.lastShot = Date.now()
       bullets.push(
-        new Bullet(this.pos.x + -4 + this.width / 2, this.pos.y - 12),
+        new Bullet('player', this.pos.x + -4 + this.width / 2, this.pos.y - 12),
       )
     }
 
@@ -41,19 +47,23 @@ export class Player {
     )
     const distance = mousePos.dist(offsetPos)
     if (distance > 5) {
+      const maxSpeed = shooting ? 4 : 7
       const delta = createVector(mouseX, mouseY).sub(offsetPos)
       if (distance < this.height * 2) {
         delta.mult(0.05)
+        delta.x = min(delta.x, maxSpeed)
+        delta.y = min(delta.y, maxSpeed)
       } else {
         delta.normalize()
-        delta.mult(shooting ? 4 : 7)
+        delta.mult(maxSpeed)
       }
       this.pos.x = constrain(this.pos.x + delta.x, 10, getWidth() - this.width)
-      this.pos.y = constrain(
-        this.pos.y + delta.y,
-        10,
-        getHeight() - this.height,
-      )
+      if (!this.startScreen)
+        this.pos.y = constrain(
+          this.pos.y + delta.y,
+          10,
+          getHeight() - this.height,
+        )
     }
   }
 }

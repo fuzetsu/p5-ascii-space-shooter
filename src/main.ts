@@ -2,7 +2,8 @@ import { Bullet } from './objects/bullet'
 import { Enemy } from './objects/enemy'
 import { Explosion } from './objects/explosion'
 import { Player } from './objects/player'
-import { getHeight, getWidth } from './util'
+import { StartScreen } from './objects/start-screen'
+import { didBoxCollide, getHeight, getWidth } from './util'
 
 let player: Player | null = null
 let enemies: Enemy[] = []
@@ -11,10 +12,12 @@ let bullets: Bullet[] = []
 let gameOver: number = -1
 let score: number = 0
 let spawnRate = 120
+let startScreen: StartScreen
 
 // @ts-ignore
 window.setup = () => {
   createCanvas(getWidth(), getHeight())
+  startScreen = new StartScreen()
 }
 
 window.windowResized = () => {
@@ -28,17 +31,23 @@ window.draw = () => {
   background(0)
   textSize(13)
 
+  if (!startScreen.started) {
+    startScreen.draw()
+    return
+  }
+
   if (gameOver === 0) {
     textAlign('center')
     textSize(50)
     fill(255)
     text(
-      score + ' points\nGAME OVER\nPress Space',
+      score + ' points\nGAME OVER\nClick to try again',
       getWidth() / 2,
       getHeight() / 2,
     )
     if (keyIsDown(32) || mouseIsPressed) {
       player = null
+      startScreen.started = false
       gameOver = -1
     }
     return
@@ -78,24 +87,33 @@ window.draw = () => {
   }
   enemies = enemies.filter((x) => x.visible)
 
+  const allChars = [player, ...enemies]
   for (let bullet of bullets) {
     bullet.draw()
     bullet.move()
-  }
 
-  const allChars = [player, ...enemies]
-  for (let bullet of bullets) {
     for (let character of allChars) {
-      const startX = character.pos.x + character.width * 0.2
-      const endX = startX + character.width * 0.6
-      const startY = character.pos.y
-      const endY = character.pos.y + character.height
+      const isPlayer = character === player
 
-      const didCollide =
-        bullet.pos.x >= startX &&
-        bullet.pos.x <= endX &&
-        bullet.pos.y >= startY &&
-        bullet.pos.y <= endY
+      if (isPlayer && bullet.owner === 'player') continue
+      if (!isPlayer && bullet.owner === 'enemy') continue
+
+      const xCollideOffset = isPlayer ? 0.15 : 0
+
+      const didCollide = didBoxCollide(
+        {
+          x: bullet.pos.x,
+          y: bullet.pos.y,
+          height: bullet.height,
+          width: bullet.width,
+        },
+        {
+          x: character.pos.x + character.width * xCollideOffset,
+          y: character.pos.y,
+          width: character.width * (1 - xCollideOffset * 2),
+          height: character.height,
+        },
+      )
 
       if (didCollide) {
         bullet.visible = false
@@ -104,21 +122,21 @@ window.draw = () => {
           character.pos.x + character.width / 2,
           character.pos.y + character.height / 2,
         )
-        if (character === player) {
+        if (isPlayer) {
           if (gameOver === -1) gameOver = 50
           explosions.push(new Explosion(charOrigin.x, charOrigin.y))
         } else if (character instanceof Enemy) {
-          character.takeDamage(2.5)
+          const bulletDamage = bullet.owner === 'player' ? 2.5 : 1
+          character.takeDamage(bulletDamage)
           if (!character.alive) {
             explosions.push(new Explosion(charOrigin.x, charOrigin.y))
             score += 1
-            enemies = enemies.filter((x) => x !== character)
           }
         }
       }
     }
   }
-
+  enemies = enemies.filter((x) => x.alive)
   bullets = bullets.filter((x) => x.visible)
 
   for (let explosion of explosions) {

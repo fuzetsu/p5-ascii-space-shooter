@@ -75,6 +75,7 @@ export class Enemy {
       this.lastShot = Date.now()
       bullets.push(
         new Bullet(
+          'enemy',
           this.pos.x - 4 + this.width / 2,
           this.pos.y + this.height,
           -6,
